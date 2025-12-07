@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Luces estéticas modernas para mesas de noche - Diseño elegante y funcional para tu hogar">
+    <meta name="author" content="Estudiante UNAD">
+    <title>LumiNoche - Luces Estéticas Modernas para Mesas de Noche</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <base href="./">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <h1 class="logo">✨ LumiNoche</h1>
+                <ul class="nav-menu">
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#productos">Productos</a></li>
+                    <li><a href="#caracteristicas">Características</a></li>
+                    <li><a href="#galeria">Galería</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+                <button class="menu-toggle" id="menuToggle">☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="inicio" class="hero">
+            <div class="hero-content">
+                <h2 class="hero-title">Ilumina tu Noche con Estilo</h2>
+                <p class="hero-subtitle">Luces estéticas modernas diseñadas para transformar tu espacio</p>
+                <button class="cta-button" onclick="scrollToSection('productos')">Ver Productos</button>
+            </div>
+            <div class="hero-image">
+                <div class="light-glow"></div>
+            </div>
+        </section>
+
+        <!-- Productos Section -->
+        <section id="productos" class="products-section">
+            <div class="container">
+                <h2 class="section-title">Nuestra Colección</h2>
+                <p class="section-subtitle">Encuentra la iluminación perfecta para tu espacio</p>
+                
+                <div class="products-grid">
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="img/lampara-luminoche-classic.jpg" alt="LumiNoche Classic - Luz LED con control táctil">
+                            <span class="product-badge">Nuevo</span>
+                        </div>
+                        <div class="product-info">
+                            <h3>LumiNoche Classic</h3>
+                            <p class="product-description">Luz LED con control táctil y 3 niveles de intensidad</p>
+                            <div class="product-features">
+                                <span class="feature-tag">LED</span>
+                                <span class="feature-tag">USB</span>
+                                <span class="feature-tag">Táctil</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="price">$89.900</span>
+                                <button class="btn-add-cart">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="img/lampara-luminoche-pro.jpg" alt="LumiNoche Pro - Luz inteligente con app móvil">
+                            <span class="product-badge">Popular</span>
+                        </div>
+                        <div class="product-info">
+                            <h3>LumiNoche Pro</h3>
+                            <p class="product-description">Luz inteligente con app móvil y cambio de color RGB</p>
+                            <div class="product-features">
+                                <span class="feature-tag">RGB</span>
+                                <span class="feature-tag">App</span>
+                                <span class="feature-tag">WiFi</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="price">$149.900</span>
+                                <button class="btn-add-cart">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="img/lampara-luminoche-elite.jpg" alt="LumiNoche Elite - Lámpara minimalista con sensor">
+                            <span class="product-badge">Premium</span>
+                        </div>
+                        <div class="product-info">
+                            <h3>LumiNoche Elite</h3>
+                            <p class="product-description">Lámpara de diseño minimalista con sensor de movimiento</p>
+                            <div class="product-features">
+                                <span class="feature-tag">Sensor</span>
+                                <span class="feature-tag">Minimalista</span>
+                                <span class="feature-tag">Premium</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="price">$199.900</span>
+                                <button class="btn-add-cart">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Características Section -->
+        <section id="caracteristicas" class="features-section">
+            <div class="container">
+                <h2 class="section-title">Por qué Elegir LumiNoche</h2>
+                <p class="section-subtitle">Iluminación que transforma tu espacio</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Eficiencia Energética</h3>
+                        <p>Tecnología LED de bajo consumo, hasta 80% más eficiente que lámparas tradicionales. Ahorra energía y dinero.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Diseño Moderno</h3>
+                        <p>Estética contemporánea que se adapta a cualquier estilo de decoración, desde minimalista hasta clásico.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Control Inteligente</h3>
+                        <p>Controla tu iluminación desde tu smartphone. Cambia colores, ajusta intensidad y programa horarios.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🌙</div>
+                        <h3>Iluminación Suave</h3>
+                        <p>Luz cálida y relajante perfecta para crear ambientes acogedores en tu habitación o sala.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">✨</div>
+                        <h3>Fácil Instalación</h3>
+                        <p>Instalación sencilla sin necesidad de herramientas especiales. Conecta y disfruta.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Calidad Garantizada</h3>
+                        <p>Materiales de primera calidad con garantía de 2 años y soporte técnico especializado.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Galería Section -->
+        <section id="galeria" class="gallery-section">
+            <div class="container">
+                <h2 class="section-title">Galería de Productos</h2>
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="img/galeria-ambiente-moderno.jpg" alt="Ambiente moderno con lámpara LumiNoche">
+                        </div>
+                        <p class="gallery-caption">Ambiente Moderno</p>
+                    </div>
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="img/galeria-estilo-minimalista.jpg" alt="Estilo minimalista con lámpara LumiNoche">
+                        </div>
+                        <p class="gallery-caption">Estilo Minimalista</p>
+                    </div>
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="img/galeria-iluminacion-suave.jpg" alt="Iluminación suave de lámpara LumiNoche">
+                        </div>
+                        <p class="gallery-caption">Iluminación Suave</p>
+                    </div>
+                    <div class="gallery-item">
+                        <div class="gallery-image">
+                            <img src="img/galeria-diseno-elegante.jpg" alt="Diseño elegante con lámpara LumiNoche">
+                        </div>
+                        <p class="gallery-caption">Diseño Elegante</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contacto Section -->
+        <section id="contacto" class="contact-section">
+            <div class="container">
+                <h2 class="section-title">Contáctanos</h2>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Información de Contacto</h3>
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            <span>contacto@luminoche.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📱</span>
+                            <span>+57 300 123 4567</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <span>Bogotá, Colombia</span>
+                        </div>
+                    </div>
+                    <form class="contact-form" id="contactForm">
+                        <input type="text" placeholder="Nombre completo" required>
+                        <input type="email" placeholder="Correo electrónico" required>
+                        <textarea placeholder="Mensaje" rows="5" required></textarea>
+                        <button type="submit" class="submit-btn">Enviar Mensaje</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>LumiNoche</h4>
+                    <p>Iluminando tu vida con diseño y tecnología</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Enlaces</h4>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#productos">Productos</a></li>
+                        <li><a href="#caracteristicas">Características</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Síguenos</h4>
+                    <p>Mantente al día con nuestras novedades y ofertas especiales</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 LumiNoche - Todos los derechos reservados</p>
+                <p>Iluminando tu vida con diseño y tecnología</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
