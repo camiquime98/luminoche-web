@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulación · Torsión del ventrículo izquierdo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #0f1f24;
+      --bg-mid: #163038;
+      --bg-soft: #1e3d47;
+      --ink: #e8f2f4;
+      --muted: #9db5bc;
+      --accent: #3ecfbf;
+      --accent-2: #f0a35e;
+      --epi: #5ec8ff;
+      --endo: #ff7a6e;
+      --blood: #e85d5d;
+      --panel: rgba(255, 255, 255, 0.06);
+      --line: rgba(232, 242, 244, 0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: "DM Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(62, 207, 191, 0.18), transparent 55%),
+        radial-gradient(900px 600px at 85% 20%, rgba(240, 163, 94, 0.14), transparent 50%),
+        linear-gradient(165deg, var(--bg-deep), var(--bg-mid) 45%, #12262c);
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 2.5rem;
+    }
+
+    header {
+      display: grid;
+      gap: 0.55rem;
+      margin-bottom: 1.25rem;
+      animation: rise 0.7s ease both;
+    }
+
+    .brand {
+      font-family: "Fraunces", serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .brand span { color: var(--accent); }
+
+    .lead {
+      color: var(--muted);
+      max-width: 52ch;
+      font-size: 1.02rem;
+      line-height: 1.5;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 860px) {
+      .stage { grid-template-columns: 1fr; }
+    }
+
+    .canvas-panel {
+      position: relative;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border-radius: 1.25rem;
+      min-height: 420px;
+      overflow: hidden;
+      animation: rise 0.8s ease 0.08s both;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+    }
+
+    .phase-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(15, 31, 36, 0.72);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(6px);
+      transition: color 0.3s, border-color 0.3s;
+    }
+
+    .phase-badge.sistole { color: var(--accent-2); border-color: rgba(240,163,94,0.45); }
+    .phase-badge.diastole { color: var(--accent); border-color: rgba(62,207,191,0.45); }
+
+    .side {
+      display: grid;
+      gap: 1rem;
+      animation: rise 0.85s ease 0.12s both;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 1.1rem;
+      padding: 1rem 1.1rem;
+    }
+
+    .panel h2 {
+      font-family: "Fraunces", serif;
+      font-size: 1.15rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .panel p, .panel li {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+
+    .panel ul {
+      list-style: none;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .panel li::before {
+      content: "";
+      display: inline-block;
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      margin-right: 0.45rem;
+      transform: translateY(-1px);
+    }
+
+    .panel li.epi::before { background: var(--epi); }
+    .panel li.endo::before { background: var(--endo); }
+    .panel li.twist::before { background: var(--accent-2); }
+    .panel li.untwist::before { background: var(--accent); }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    button {
+      font: inherit;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s;
+    }
+
+    button:hover { transform: translateY(-1px); background: rgba(255,255,255,0.1); }
+    button:active { transform: translateY(0); }
+    button.primary {
+      background: linear-gradient(135deg, rgba(62,207,191,0.95), rgba(62,207,191,0.7));
+      color: #062226;
+      border-color: transparent;
+      font-weight: 700;
+    }
+    button.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(62,207,191,0.35) inset;
+    }
+
+    .meter {
+      margin-top: 0.85rem;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .meter label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .bar > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.08s linear;
+    }
+
+    .tip {
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: rgba(62, 207, 191, 0.1);
+      border: 1px solid rgba(62, 207, 191, 0.25);
+      border-radius: 0.9rem;
+      padding: 0.85rem 1rem;
+      line-height: 1.45;
+      min-height: 4.5rem;
+      transition: opacity 0.25s ease;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">Fisio<span>Cardio</span> · Torsión del VI</h1>
+      <p class="lead">
+        Simulación de Guyton: el ventrículo izquierdo se tuerce en sístole para eyectar
+        y se destuerce en diástole como un resorte, facilitando el llenado.
+      </p>
+    </header>
+
+    <div class="stage">
+      <section class="canvas-panel" aria-label="Simulación visual del ventrículo izquierdo">
+        <div id="phaseBadge" class="phase-badge diastole">Diástole · destorcimiento</div>
+        <canvas id="heartCanvas" width="720" height="520"></canvas>
+      </section>
+
+      <aside class="side">
+        <div class="panel">
+          <h2>Capas de fibras</h2>
+          <ul>
+            <li class="epi">Subepicardio: espiral a la izquierda</li>
+            <li class="endo">Subendocardio: espiral a la derecha</li>
+            <li class="twist">Sístole: torsión + base baja al ápex</li>
+            <li class="untwist">Diástole: destorcimiento + succión</li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h2>Controles</h2>
+          <div class="controls">
+            <button id="btnPlay" class="primary" type="button">Reproducir ciclo</button>
+            <button id="btnSistole" type="button">Solo sístole</button>
+            <button id="btnDiastole" type="button">Solo diástole</button>
+            <button id="btnReset" type="button">Reiniciar</button>
+          </div>
+          <div class="meter">
+            <label>
+              <span>Progreso del ciclo</span>
+              <span id="phaseText">0%</span>
+            </label>
+            <div class="bar"><i id="progressBar"></i></div>
+          </div>
+        </div>
+
+        <p id="tip" class="tip">
+          Pulsa <strong>Reproducir ciclo</strong> para ver eyección (giro) y llenado (destorcimiento).
+        </p>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("heartCanvas");
+    const ctx = canvas.getContext("2d");
+    const badge = document.getElementById("phaseBadge");
+    const tip = document.getElementById("tip");
+    const progressBar = document.getElementById("progressBar");
+    const phaseText = document.getElementById("phaseText");
+
+    const btnPlay = document.getElementById("btnPlay");
+    const btnSistole = document.getElementById("btnSistole");
+    const btnDiastole = document.getElementById("btnDiastole");
+    const btnReset = document.getElementById("btnReset");
+
+    let playing = false;
+    let mode = "cycle"; // cycle | sistole | diastole
+    let t = 0; // 0..1
+    let last = 0;
+    const CYCLE_MS = 4200;
+
+    const tips = {
+      rest: "En reposo el VI está relajado. Las fibras epicárdicas (azul) y endocárdicas (coral) giran en sentidos opuestos.",
+      sistoleEarly: "Sístole temprana: empieza la torsión. La base gira y baja hacia el ápex; la sangre sale a la aorta.",
+      sistolePeak: "Pico de sístole: máxima torsión. El VI actúa como una toalla que se escurre → mejor eyección.",
+      diastoleEarly: "Diástole temprana: el VI queda como resorte cargado y se destuerce; aparece succión de llenado.",
+      diastoleLate: "Diástole tardía: destorcimiento casi completo. Las cámaras se llenan con facilidad."
+    };
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(Math.max(420, rect.height) * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function easeInOut(x) {
+      return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    }
+
+    function stateFromT(time) {
+      // 0-0.48 sistole, 0.48-1 diastole
+      if (time < 0.48) {
+        const u = easeInOut(time / 0.48);
+        return {
+          phase: "sistole",
+          twist: u,
+          shorten: u,
+          eject: u,
+          fill: 1 - u * 0.85,
+          label: "Sístole · torsión y eyección",
+          tipKey: u < 0.45 ? "sistoleEarly" : "sistolePeak"
+        };
+      }
+      const u = easeInOut((time - 0.48) / 0.52);
+      return {
+        phase: "diastole",
+        twist: 1 - u,
+        shorten: 1 - u,
+        eject: 0,
+        fill: 0.15 + u * 0.85,
+        label: "Diástole · destorcimiento y llenado",
+        tipKey: u < 0.5 ? "diastoleEarly" : "diastoleLate"
+      };
+    }
+
+    function drawHelix(cx, cy, rTop, rBot, h, turns, phase, color, width, alpha) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = width;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      const steps = 90;
+      for (let i = 0; i <= steps; i++) {
+        const p = i / steps;
+        const y = cy - h / 2 + p * h;
+        const r = rTop + (rBot - rTop) * p;
+        const ang = phase + turns * Math.PI * 2 * p;
+        const x = cx + Math.cos(ang) * r;
+        const y2 = y + Math.sin(ang) * r * 0.18;
+        if (i === 0) ctx.moveTo(x, y2);
+        else ctx.lineTo(x, y2);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawBlood(cx, cy, h, fill, eject) {
+      // cavity
+      const top = cy - h / 2 + 28;
+      const bot = cy + h / 2 - 18;
+      const cavityH = (bot - top) * fill;
+      ctx.save();
+      ctx.fillStyle = "rgba(232, 93, 93, 0.35)";
+      ctx.beginPath();
+      ctx.ellipse(cx, bot - cavityH / 2, 42 * (0.85 + fill * 0.2), cavityH / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ejection particles to aorta (up-right)
+      if (eject > 0.05) {
+        for (let i = 0; i < 10; i++) {
+          const p = (i / 10 + eject) % 1;
+          const x = cx + 10 + p * 70;
+          const y = cy - h / 2 - 10 - p * 50 - Math.sin(p * 8) * 4;
+          ctx.globalAlpha = (1 - p) * eject;
+          ctx.fillStyle = "#ff8d8d";
+          ctx.beginPath();
+          ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // filling droplets from mitral (top-left)
+      if (fill > 0.35 && eject < 0.2) {
+        for (let i = 0; i < 7; i++) {
+          const p = (i / 7 + (1 - fill)) % 1;
+          const x = cx - 55 + p * 40;
+          const y = cy - h / 2 - 20 + p * 70;
+          ctx.globalAlpha = 0.35 + fill * 0.4;
+          ctx.fillStyle = "#ff9a9a";
+          ctx.beginPath();
+          ctx.arc(x, y, 2.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    function draw(state) {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      // soft floor glow
+      const g = ctx.createRadialGradient(w * 0.5, h * 0.78, 10, w * 0.5, h * 0.78, w * 0.35);
+      g.addColorStop(0, "rgba(62,207,191,0.12)");
+      g.addColorStop(1, "transparent");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+
+      const cx = w * 0.48;
+      const cy = h * 0.52;
+      const baseYShift = state.shorten * 26;
+      const height = 210 - state.shorten * 28;
+      const rTop = 78 - state.shorten * 10;
+      const rBot = 48 - state.shorten * 4;
+
+      // aorta stub
+      ctx.save();
+      ctx.strokeStyle = "rgba(232,242,244,0.35)";
+      ctx.lineWidth = 10;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(cx + 18, cy - height / 2 - baseYShift);
+      ctx.quadraticCurveTo(cx + 55, cy - height / 2 - 40 - baseYShift, cx + 90, cy - height / 2 - 55 - baseYShift);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(232,242,244,0.5)";
+      ctx.font = "600 13px DM Sans";
+      ctx.fillText("Aorta", cx + 70, cy - height / 2 - 68 - baseYShift);
+      ctx.restore();
+
+      // ventricle body
+      ctx.save();
+      ctx.translate(0, -baseYShift * 0.35);
+      const body = ctx.createLinearGradient(cx, cy - height / 2, cx, cy + height / 2);
+      body.addColorStop(0, "rgba(255,130,120,0.28)");
+      body.addColorStop(1, "rgba(200,70,70,0.38)");
+      ctx.fillStyle = body;
+      ctx.beginPath();
+      ctx.moveTo(cx - rTop, cy - height / 2);
+      ctx.bezierCurveTo(cx - rTop - 8, cy, cx - rBot - 6, cy + height * 0.25, cx, cy + height / 2);
+      ctx.bezierCurveTo(cx + rBot + 6, cy + height * 0.25, cx + rTop + 8, cy, cx + rTop, cy - height / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // fiber helices (opposite directions)
+      const epiPhase = -state.twist * 1.35;
+      const endoPhase = state.twist * 1.55;
+      drawHelix(cx, cy, rTop * 0.95, rBot * 0.95, height * 0.9, 1.15, epiPhase, "#5ec8ff", 3.2, 0.9);
+      drawHelix(cx, cy, rTop * 0.62, rBot * 0.55, height * 0.82, -1.25, endoPhase, "#ff7a6e", 2.6, 0.9);
+
+      drawBlood(cx, cy + 8, height * 0.75, state.fill, state.eject);
+
+      // base / apex labels
+      ctx.fillStyle = "rgba(232,242,244,0.75)";
+      ctx.font = "600 13px DM Sans";
+      ctx.fillText("Base", cx - 110, cy - height / 2 + 8);
+      ctx.fillText("Ápex", cx - 18, cy + height / 2 + 28);
+
+      // rotation arrows
+      ctx.save();
+      ctx.translate(cx + rTop + 34, cy - height / 2 + 20);
+      ctx.strokeStyle = state.phase === "sistole" ? "#f0a35e" : "#3ecfbf";
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 16, -0.2, Math.PI * 1.3);
+      ctx.stroke();
+      const dir = state.phase === "sistole" ? 1 : -1;
+      ctx.beginPath();
+      ctx.moveTo(14, -6);
+      ctx.lineTo(18, 2 * dir);
+      ctx.lineTo(8, 0);
+      ctx.fill();
+      ctx.font = "600 12px DM Sans";
+      ctx.fillText(state.phase === "sistole" ? "Giro" : "Destuerce", -10, 34);
+      ctx.restore();
+
+      ctx.restore();
+
+      // legend
+      ctx.font = "600 12px DM Sans";
+      ctx.fillStyle = "#5ec8ff";
+      ctx.fillRect(24, h - 54, 12, 12);
+      ctx.fillStyle = "rgba(232,242,244,0.8)";
+      ctx.fillText("Fibras subepicárdicas", 42, h - 44);
+      ctx.fillStyle = "#ff7a6e";
+      ctx.fillRect(24, h - 32, 12, 12);
+      ctx.fillStyle = "rgba(232,242,244,0.8)";
+      ctx.fillText("Fibras subendocárdicas", 42, h - 22);
+    }
+
+    function applyUi(state) {
+      badge.textContent = state.label;
+      badge.className = "phase-badge " + state.phase;
+      progressBar.style.width = `${Math.round(t * 100)}%`;
+      phaseText.textContent = `${Math.round(t * 100)}%`;
+      tip.innerHTML = tips[state.tipKey] || tips.rest;
+    }
+
+    function frame(now) {
+      if (!last) last = now;
+      const dt = now - last;
+      last = now;
+
+      if (playing) {
+        t += dt / CYCLE_MS;
+        if (mode === "sistole" && t > 0.48) t = 0.48;
+        if (mode === "diastole") {
+          if (t < 0.48) t = 0.48;
+          if (t >= 1) t = 0.48;
+        }
+        if (mode === "cycle" && t >= 1) t -= 1;
+      }
+
+      const state = t === 0 && !playing ? {
+        phase: "diastole",
+        twist: 0,
+        shorten: 0,
+        eject: 0,
+        fill: 1,
+        label: "Reposo · listo para el ciclo",
+        tipKey: "rest"
+      } : stateFromT(Math.min(t, 0.999));
+
+      draw(state);
+      applyUi(state);
+      requestAnimationFrame(frame);
+    }
+
+    function setMode(next, autoPlay = true) {
+      mode = next;
+      [btnPlay, btnSistole, btnDiastole].forEach((b) => b.classList.remove("active"));
+      if (next === "cycle") btnPlay.classList.add("active");
+      if (next === "sistole") btnSistole.classList.add("active");
+      if (next === "diastole") btnDiastole.classList.add("active");
+      if (autoPlay) {
+        playing = true;
+        btnPlay.textContent = "Pausar";
+      }
+    }
+
+    btnPlay.addEventListener("click", () => {
+      if (mode !== "cycle") {
+        setMode("cycle", true);
+        return;
+      }
+      playing = !playing;
+      btnPlay.textContent = playing ? "Pausar" : "Reproducir ciclo";
+      btnPlay.classList.toggle("active", playing);
+    });
+
+    btnSistole.addEventListener("click", () => {
+      t = 0;
+      setMode("sistole", true);
+    });
+
+    btnDiastole.addEventListener("click", () => {
+      t = 0.48;
+      setMode("diastole", true);
+    });
+
+    btnReset.addEventListener("click", () => {
+      playing = false;
+      mode = "cycle";
+      t = 0;
+      last = 0;
+      btnPlay.textContent = "Reproducir ciclo";
+      [btnPlay, btnSistole, btnDiastole].forEach((b) => b.classList.remove("active"));
+    });
+
+    window.addEventListener("resize", resize);
+    resize();
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
